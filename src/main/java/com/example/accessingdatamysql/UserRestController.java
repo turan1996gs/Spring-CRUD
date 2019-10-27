@@ -11,20 +11,20 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-public class UserController {
+public class UserRestController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/users")
-    public String registerForm(Model model) {
-        model.addAttribute("user", new User());
+    // READ endpointi
+    @GetMapping("/api/users")
+    public  @ResponseBody Iterable<User> index() {
         Iterable<User> users = userRepository.findAll();
-        model.addAttribute("users",users);
-        return "register";
+        return users;
     }
 
-    @PostMapping("/users")
-    public @ResponseBody RedirectView registerSubmit(
+    // CREATE endpointi
+    @PostMapping("/api/users")
+    public @ResponseBody User registerSubmit(
             @RequestParam String name, @RequestParam String email, @RequestParam String surname, @RequestParam String student_no) {
         User u = new User();
         u.setName(name);
@@ -33,25 +33,20 @@ public class UserController {
         u.setStudent_no(student_no);
         userRepository.save(u);
 
-        return new RedirectView("/users");
+        return u;
     }
 
-    @GetMapping("/users/{id}/delete")
-    public @ResponseBody RedirectView deleteUser(@PathVariable("id") Integer id){
+    @DeleteMapping("/api/users/{id}/delete")
+    public @ResponseBody Iterable<User> deleteUser(@PathVariable("id") Integer id){
         userRepository.deleteById(id);
-        return new RedirectView("/users");
-    }
-
-    @GetMapping("/users/{id}/edit")
-    public String edit(@PathVariable("id") Integer id,Model m){
-        User u = userRepository.findById(id).get();
-        m.addAttribute("user",u);
-        return "edit";
+        Iterable<User> users = userRepository.findAll();
+        return users;
     }
 
 
-    @PostMapping("/users/{id}/update")
-    public @ResponseBody RedirectView updateUser(@PathVariable("id") Integer id, @RequestParam String student_no,@RequestParam String name,@RequestParam String surname,@RequestParam String email){
+
+    @PutMapping("/api/users/{id}/update")
+    public @ResponseBody User updateUser(@PathVariable("id") Integer id, @RequestParam String student_no,@RequestParam String name,@RequestParam String surname,@RequestParam String email){
         User u = userRepository.findById(id).get();
         u.setStudent_no(student_no);
         u.setName(name);
@@ -59,7 +54,7 @@ public class UserController {
         u.setEmail(email);
         userRepository.save(u);
 
-        return new RedirectView("/users");
+        return u;
     }
 
 }
